@@ -1,58 +1,34 @@
 package util;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Vector;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import org.apache.commons.io.FilenameUtils;
 
 public class UtilFile {
 
-	public static Vector<String> readFile(String fileName) {
-		Vector<String> configItemsNames = new Vector<>();
-		FileReader reader = null;
-		BufferedReader buffer = null;
+	public static HashSet<String> listExtensionInFiles(File filePath) {
+		HashSet<String> extensions = new HashSet<String>();
 
-		try {
-			reader = new FileReader(fileName);
+		for (final File ficheroEntrada : filePath.listFiles()) {
+			if (ficheroEntrada.isDirectory()) {
+				extensions.addAll(listExtensionInFiles(ficheroEntrada));
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-
-		try {
-			String row;
-			buffer = new BufferedReader(reader);
-
-			while ((row = buffer.readLine()) != null) {
-				configItemsNames.add(row);
-				System.out.println(row);
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
 
-		}
+			if (!ficheroEntrada.isDirectory()) {
+//				String[] nameParts = ficheroEntrada.getAbsolutePath().split("\\.");
+//				String extension = nameParts[nameParts.length - 1];
+				String extension = FilenameUtils.getExtension(ficheroEntrada.getAbsolutePath());
 
-		if (buffer != null) {
-			try {
-				reader.close();
-			} catch (IOException e) {
-				e.printStackTrace();
+				if (!extensions.contains(extension)) {
+					extensions.add(extension);
+
+				}
 			}
 		}
-		return configItemsNames;
 
-	}
-
-	public static boolean createXMLFile(String configItemsXML, String pathOut) throws IOException {
-		FileWriter writer = new FileWriter(pathOut);
-		try (BufferedWriter buffer = new BufferedWriter(writer)) {
-			buffer.append(configItemsXML);
-		}
-		writer.close();
-		return true;
-
+		return extensions;
 	}
 }
